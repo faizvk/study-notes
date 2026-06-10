@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ListTodo, Map, Plus, Trash2 } from "lucide-react";
+import { ListTodo, Map as MapIcon, Plus, Trash2 } from "lucide-react";
 
 import { plansApi } from "../../lib/api";
 import type { Plan, PlanStep } from "../../types";
@@ -89,7 +89,7 @@ export function PlanDetail({ planId, onDeleted }: Props) {
     return <p className="px-1 text-sm text-zinc-600">Loading…</p>;
   }
 
-  const Icon = plan.kind === "roadmap" ? Map : ListTodo;
+  const Icon = plan.kind === "roadmap" ? MapIcon : ListTodo;
   const pct = plan.total_steps > 0 ? Math.round((plan.done_steps / plan.total_steps) * 100) : 0;
 
   function submitStep() {
