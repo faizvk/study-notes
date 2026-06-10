@@ -10,9 +10,16 @@ import { plansApi } from "../lib/api";
 
 export function PlannerPage() {
   const { data: plans, isLoading } = useQuery({ queryKey: ["plans"], queryFn: plansApi.list });
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(
+    () => localStorage.getItem("sn_plan") || null
+  );
 
-  // Default to the first plan once loaded (and recover if the selection vanishes).
+  // Remember the selection; default to the first plan once loaded (and recover
+  // if the remembered plan was deleted).
+  useEffect(() => {
+    if (selectedId) localStorage.setItem("sn_plan", selectedId);
+  }, [selectedId]);
+
   useEffect(() => {
     if (!plans) return;
     if (selectedId && plans.some((p) => p.id === selectedId)) return;
