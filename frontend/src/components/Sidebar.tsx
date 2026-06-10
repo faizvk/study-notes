@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { NavLink, useNavigate } from "react-router-dom";
 import { ListTodo, Plus, Star, StickyNote } from "lucide-react";
 
-import { searchApi, topicsApi } from "../lib/api";
+import { plansApi, searchApi, topicsApi } from "../lib/api";
 import { TopicTree } from "./TopicTree";
 
 export function Sidebar({ onOpenPalette }: { onOpenPalette: (tag?: string) => void }) {
@@ -11,6 +11,13 @@ export function Sidebar({ onOpenPalette }: { onOpenPalette: (tag?: string) => vo
   const navigate = useNavigate();
   const { data: pinned } = useQuery({ queryKey: ["pinned"], queryFn: topicsApi.pinned });
   const { data: tags } = useQuery({ queryKey: ["tags"], queryFn: searchApi.tags });
+  const { data: agenda } = useQuery({ queryKey: ["agenda"], queryFn: plansApi.agenda });
+  // Steps due today or already overdue — the "needs attention" count.
+  const dueNow = (agenda ?? []).filter((a) => {
+    const due = new Date(a.due_at);
+    const now = new Date();
+    return due.getTime() < now.getTime() || due.toDateString() === now.toDateString();
+  }).length;
 
   const createRoot = useMutation({
     mutationFn: () => topicsApi.create({ title: "Untitled" }),
@@ -37,7 +44,12 @@ export function Sidebar({ onOpenPalette }: { onOpenPalette: (tag?: string) => vo
         </NavLink>
         <NavLink to="/plan" className={navCls}>
           <ListTodo size={14} strokeWidth={1.75} />
-          Planner
+          <span className="flex-1">Planner</span>
+          {dueNow > 0 && (
+            <span className="rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-semibold text-amber-300">
+              {dueNow}
+            </span>
+          )}
         </NavLink>
       </nav>
 
