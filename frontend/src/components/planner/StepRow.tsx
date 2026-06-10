@@ -1,6 +1,9 @@
-import { CalendarClock, Check, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { CalendarClock, Check, Link2, Trash2 } from "lucide-react";
 
 import type { PlanStep } from "../../types";
+import { NotePicker } from "./NotePicker";
 
 /** "2026-06-14" ⇄ ISO datetime, due dates land at end-of-day local time. */
 function toDateInput(iso: string | null): string {
@@ -39,6 +42,8 @@ const NEXT_STATUS: Record<PlanStep["status"], PlanStep["status"]> = {
 };
 
 export function StepRow({ step, index, kind, onUpdate, onRemove }: StepRowProps) {
+  const navigate = useNavigate();
+  const [picking, setPicking] = useState(false);
   const done = step.status === "done";
 
   return (
@@ -67,6 +72,41 @@ export function StepRow({ step, index, kind, onUpdate, onRemove }: StepRowProps)
           done ? "text-zinc-500 line-through" : "text-zinc-200"
         }`}
       />
+
+      {/* Linked note: open it, or attach one via the picker. */}
+      <span className="relative flex shrink-0 items-center">
+        {step.topic_id ? (
+          <button
+            onClick={() => navigate(`/n/${step.topic_id}`)}
+            onContextMenu={(e) => {
+              e.preventDefault();
+              onUpdate(step.id, { topic_id: null });
+            }}
+            title={`Open note: ${step.topic_title ?? "note"} (right-click to unlink)`}
+            className="flex max-w-[10rem] items-center gap-1 truncate rounded-md bg-indigo-500/10 px-1.5 py-0.5 text-[11px] text-indigo-300 transition-colors hover:bg-indigo-500/20"
+          >
+            <Link2 size={10} strokeWidth={2} />
+            <span className="truncate">{step.topic_title ?? "note"}</span>
+          </button>
+        ) : (
+          <button
+            onClick={() => setPicking(true)}
+            title="Link a note"
+            className="flex h-6 w-6 items-center justify-center rounded-md text-zinc-600 opacity-0 transition-all hover:bg-white/5 hover:text-indigo-300 group-hover:opacity-100"
+          >
+            <Link2 size={12} strokeWidth={2} />
+          </button>
+        )}
+        {picking && (
+          <NotePicker
+            onPick={(topicId) => {
+              setPicking(false);
+              onUpdate(step.id, { topic_id: topicId });
+            }}
+            onClose={() => setPicking(false)}
+          />
+        )}
+      </span>
 
       {/* Due date — the reminders backbone. Overdue red, <48h amber. */}
       <label
