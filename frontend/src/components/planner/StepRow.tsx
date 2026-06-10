@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CalendarClock, Check, Link2, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, CalendarClock, Check, Link2, Trash2 } from "lucide-react";
 
 import type { PlanStep } from "../../types";
 import { NotePicker } from "./NotePicker";
@@ -33,6 +33,7 @@ export interface StepRowProps {
   kind: "roadmap" | "checklist";
   onUpdate: (stepId: string, patch: Partial<PlanStep>) => void;
   onRemove: (stepId: string) => void;
+  onMove: (stepId: string, dir: -1 | 1) => void;
 }
 
 const NEXT_STATUS: Record<PlanStep["status"], PlanStep["status"]> = {
@@ -41,7 +42,7 @@ const NEXT_STATUS: Record<PlanStep["status"], PlanStep["status"]> = {
   done: "todo",
 };
 
-export function StepRow({ step, index, kind, onUpdate, onRemove }: StepRowProps) {
+export function StepRow({ step, index, kind, onUpdate, onRemove, onMove }: StepRowProps) {
   const navigate = useNavigate();
   const [picking, setPicking] = useState(false);
   const done = step.status === "done";
@@ -126,13 +127,29 @@ export function StepRow({ step, index, kind, onUpdate, onRemove }: StepRowProps)
         />
       </label>
 
-      <button
-        onClick={() => onRemove(step.id)}
-        title="Delete step"
-        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-zinc-600 opacity-0 transition-all hover:bg-white/5 hover:text-red-400 group-hover:opacity-100"
-      >
-        <Trash2 size={12} strokeWidth={2} />
-      </button>
+      <span className="flex shrink-0 items-center opacity-0 transition-opacity group-hover:opacity-100">
+        <button
+          onClick={() => onMove(step.id, -1)}
+          title="Move up"
+          className="flex h-6 w-5 items-center justify-center rounded-md text-zinc-600 transition-colors hover:text-zinc-300"
+        >
+          <ArrowUp size={11} strokeWidth={2} />
+        </button>
+        <button
+          onClick={() => onMove(step.id, 1)}
+          title="Move down"
+          className="flex h-6 w-5 items-center justify-center rounded-md text-zinc-600 transition-colors hover:text-zinc-300"
+        >
+          <ArrowDown size={11} strokeWidth={2} />
+        </button>
+        <button
+          onClick={() => onRemove(step.id)}
+          title="Delete step"
+          className="flex h-6 w-6 items-center justify-center rounded-md text-zinc-600 transition-colors hover:bg-white/5 hover:text-red-400"
+        >
+          <Trash2 size={12} strokeWidth={2} />
+        </button>
+      </span>
     </li>
   );
 }

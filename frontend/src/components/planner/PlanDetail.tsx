@@ -73,6 +73,18 @@ export function PlanDetail({ planId, onDeleted }: Props) {
     );
   }
 
+  function moveStep(stepId: string, dir: -1 | 1) {
+    const cur = qc.getQueryData<Plan>(["plan", planId]);
+    if (!cur) return;
+    const i = cur.steps.findIndex((s) => s.id === stepId);
+    const j = i + dir;
+    if (i === -1 || j < 0 || j >= cur.steps.length) return;
+    const steps = [...cur.steps];
+    [steps[i], steps[j]] = [steps[j], steps[i]];
+    qc.setQueryData<Plan>(["plan", planId], { ...cur, steps });
+    void plansApi.reorderSteps(planId, steps.map((s) => s.id)).then(invalidate).catch(invalidate);
+  }
+
   if (isLoading || !plan) {
     return <p className="px-1 text-sm text-zinc-600">Loading…</p>;
   }
@@ -140,6 +152,7 @@ export function PlanDetail({ planId, onDeleted }: Props) {
             kind={plan.kind}
             onUpdate={updateStep}
             onRemove={(id) => removeMutation.mutate(id)}
+            onMove={moveStep}
           />
         ))}
       </ul>
