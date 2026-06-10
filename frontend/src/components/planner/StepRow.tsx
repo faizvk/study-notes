@@ -1,6 +1,28 @@
-import { Check, Trash2 } from "lucide-react";
+import { CalendarClock, Check, Trash2 } from "lucide-react";
 
 import type { PlanStep } from "../../types";
+
+/** "2026-06-14" ⇄ ISO datetime, due dates land at end-of-day local time. */
+function toDateInput(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function fromDateInput(value: string): string | null {
+  if (!value) return null;
+  const d = new Date(`${value}T23:59:00`);
+  return d.toISOString();
+}
+
+function dueTone(iso: string | null, done: boolean): string {
+  if (!iso || done) return "text-zinc-600";
+  const due = new Date(iso).getTime();
+  const now = Date.now();
+  if (due < now) return "text-red-400";
+  if (due - now < 48 * 3600 * 1000) return "text-amber-300";
+  return "text-zinc-500";
+}
 
 export interface StepRowProps {
   step: PlanStep;
@@ -45,6 +67,24 @@ export function StepRow({ step, index, kind, onUpdate, onRemove }: StepRowProps)
           done ? "text-zinc-500 line-through" : "text-zinc-200"
         }`}
       />
+
+      {/* Due date — the reminders backbone. Overdue red, <48h amber. */}
+      <label
+        title={step.due_at ? "Due date — clear to remove" : "Set a due date"}
+        className={`relative flex shrink-0 cursor-pointer items-center gap-1 text-[11px] transition-colors hover:text-zinc-300 ${dueTone(step.due_at, done)} ${
+          step.due_at ? "" : "opacity-0 group-hover:opacity-100"
+        }`}
+      >
+        <CalendarClock size={12} strokeWidth={2} />
+        {step.due_at &&
+          new Date(step.due_at).toLocaleDateString(undefined, { day: "numeric", month: "short" })}
+        <input
+          type="date"
+          value={toDateInput(step.due_at)}
+          onChange={(e) => onUpdate(step.id, { due_at: fromDateInput(e.target.value) })}
+          className="absolute inset-0 cursor-pointer opacity-0"
+        />
+      </label>
 
       <button
         onClick={() => onRemove(step.id)}
