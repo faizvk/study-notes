@@ -10,6 +10,7 @@ from app.models.plan_step import PlanStep
 from app.models.topic import Topic
 from app.models.user import User
 from app.schemas.plan import (
+    AgendaItem,
     PlanCreate,
     PlanRead,
     PlanSummary,
@@ -96,6 +97,35 @@ async def create_plan(payload: PlanCreate, current_user: CurrentUser, db: DbSess
     await db.commit()
     plan = await _owned_plan(db, current_user, plan.id, with_steps=True)
     return await _plan_read(db, plan)
+
+
+@router.get("/agenda", response_model=list[AgendaItem])
+async def agenda(current_user: CurrentUser, db: DbSession) -> list[AgendaItem]:
+    """All not-done steps with a due date, soonest first — reminders feed."""
+    rows = (
+        await db.execute(
+            select(PlanStep, Plan.title.label("plan_title"))
+            .join(Plan, Plan.id == PlanStep.plan_id)
+            .where(
+                Plan.owner_id == current_user.id,
+                PlanStep.due_at.is_not(None),
+                PlanStep.status != "done",
+            )
+            .order_by(PlanStep.due_at.asc())
+            .limit(100)
+        )
+    ).all()
+    return [
+        AgendaItem(
+            step_id=r.PlanStep.id,
+            plan_id=r.PlanStep.plan_id,
+            plan_title=r.plan_title,
+            title=r.PlanStep.title,
+            status=r.PlanStep.status,
+            due_at=r.PlanStep.due_at,
+        )
+        for r in rows
+    ]
 
 
 @router.get("/{plan_id}", response_model=PlanRead)
