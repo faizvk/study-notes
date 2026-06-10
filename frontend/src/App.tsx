@@ -5,6 +5,7 @@ import { AppLayout } from "./components/AppLayout";
 import { HomePage } from "./pages/HomePage";
 import { LoginPage } from "./pages/LoginPage";
 import { NotePage } from "./pages/NotePage";
+import { PlannerPage } from "./pages/PlannerPage";
 import { RegisterPage } from "./pages/RegisterPage";
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
       >
         <Route path="/" element={<HomePage />} />
         <Route path="/n/:id" element={<NotePage />} />
+        <Route path="/plan" element={<PlannerPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
