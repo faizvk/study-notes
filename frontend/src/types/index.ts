@@ -72,6 +72,45 @@ export interface Version extends VersionSummary {
   content_snapshot: Block[];
 }
 
+export interface PlanSummary {
+  id: string;
+  title: string;
+  kind: "roadmap" | "checklist";
+  description: string;
+  position: number;
+  total_steps: number;
+  done_steps: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PlanStep {
+  id: string;
+  plan_id: string;
+  title: string;
+  status: "todo" | "doing" | "done";
+  note: string;
+  position: number;
+  due_at: string | null;
+  topic_id: string | null;
+  topic_title?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Plan extends PlanSummary {
+  steps: PlanStep[];
+}
+
+export interface AgendaItem {
+  step_id: string;
+  plan_id: string;
+  plan_title: string;
+  title: string;
+  status: "todo" | "doing";
+  due_at: string;
+}
+
 export interface FileAsset {
   id: string;
   filename: string;
