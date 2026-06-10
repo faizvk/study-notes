@@ -123,6 +123,13 @@ alembic upgrade head
 | `GET`  | `/api/files/{id}` | Serve raw file bytes |
 | `GET`  | `/api/search?q=&tag=` | Search titles + content (notes, code, links), optional tag |
 | `GET`  | `/api/tags` | All tags for the current user |
+| `GET`  | `/api/plans` | List plans with progress counts |
+| `POST` | `/api/plans` | Create a roadmap or checklist |
+| `GET`  | `/api/plans/agenda` | Due/overdue steps (reminders feed) |
+| `GET/PATCH/DELETE` | `/api/plans/{id}` | Read, rename/describe, delete a plan |
+| `POST` | `/api/plans/{id}/steps` | Add a step (due date, linked note) |
+| `PATCH/DELETE` | `/api/plans/steps/{id}` | Update status/title/due/link, delete |
+| `POST` | `/api/plans/{id}/steps/reorder` | Reorder steps |
 
 ## Project layout
 
