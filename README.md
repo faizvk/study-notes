@@ -20,6 +20,10 @@ images, links) that supports paste & image upload.
 - **Pin / favourite** — pin notes to the sidebar for quick access.
 - **Drag & drop** — drag a card's grip to reorder; drop a card onto another to nest it.
 - **Collapsible sidebar** — toggle the tree/pinned/tags sidebar; dark theme throughout.
+- **Planner** — roadmaps (ordered milestones) and checklists for the work around studying:
+  steps with todo/doing/done status, due dates with overdue/today reminders, progress
+  bars, and steps that link straight to the relevant note. A due-now badge on the
+  sidebar keeps obligations visible from anywhere.
 
 ## Core concepts
 
@@ -119,6 +123,13 @@ alembic upgrade head
 | `GET`  | `/api/files/{id}` | Serve raw file bytes |
 | `GET`  | `/api/search?q=&tag=` | Search titles + content (notes, code, links), optional tag |
 | `GET`  | `/api/tags` | All tags for the current user |
+| `GET`  | `/api/plans` | List plans with progress counts |
+| `POST` | `/api/plans` | Create a roadmap or checklist |
+| `GET`  | `/api/plans/agenda` | Due/overdue steps (reminders feed) |
+| `GET/PATCH/DELETE` | `/api/plans/{id}` | Read, rename/describe, delete a plan |
+| `POST` | `/api/plans/{id}/steps` | Add a step (due date, linked note) |
+| `PATCH/DELETE` | `/api/plans/steps/{id}` | Update status/title/due/link, delete |
+| `POST` | `/api/plans/{id}/steps/reorder` | Reorder steps |
 
 ## Project layout
 
