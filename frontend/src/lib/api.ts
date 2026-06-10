@@ -1,7 +1,11 @@
 import axios from "axios";
 
 import type {
+  AgendaItem,
   FileAsset,
+  Plan,
+  PlanStep,
+  PlanSummary,
   SearchResult,
   Token,
   Topic,
@@ -74,6 +78,34 @@ export const topicsApi = {
     api.post<Topic>(`/topics/${id}/move`, data).then((r) => r.data),
   reorder: (data: { parent_id: string | null; ordered_ids: string[] }) =>
     api.post("/topics/reorder", data).then(() => undefined),
+};
+
+export const plansApi = {
+  list: () => api.get<PlanSummary[]>("/plans").then((r) => r.data),
+  agenda: () => api.get<AgendaItem[]>("/plans/agenda").then((r) => r.data),
+  get: (id: string) => api.get<Plan>(`/plans/${id}`).then((r) => r.data),
+  create: (data: { title: string; kind: "roadmap" | "checklist"; description?: string }) =>
+    api.post<Plan>("/plans", data).then((r) => r.data),
+  update: (id: string, data: { title?: string; description?: string }) =>
+    api.patch<Plan>(`/plans/${id}`, data).then((r) => r.data),
+  remove: (id: string) => api.delete(`/plans/${id}`).then(() => undefined),
+  addStep: (
+    planId: string,
+    data: { title: string; due_at?: string | null; topic_id?: string | null; note?: string }
+  ) => api.post<PlanStep>(`/plans/${planId}/steps`, data).then((r) => r.data),
+  updateStep: (
+    stepId: string,
+    data: {
+      title?: string;
+      status?: "todo" | "doing" | "done";
+      note?: string;
+      due_at?: string | null;
+      topic_id?: string | null;
+    }
+  ) => api.patch<PlanStep>(`/plans/steps/${stepId}`, data).then((r) => r.data),
+  removeStep: (stepId: string) => api.delete(`/plans/steps/${stepId}`).then(() => undefined),
+  reorderSteps: (planId: string, orderedIds: string[]) =>
+    api.post(`/plans/${planId}/steps/reorder`, { ordered_ids: orderedIds }).then(() => undefined),
 };
 
 export const searchApi = {
