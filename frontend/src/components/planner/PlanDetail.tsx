@@ -19,10 +19,14 @@ export function PlanDetail({ planId, onDeleted }: Props) {
   });
 
   const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [newStep, setNewStep] = useState("");
   useEffect(() => {
-    if (plan) setTitle(plan.title);
-  }, [plan?.title]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (plan) {
+      setTitle(plan.title);
+      setDescription(plan.description);
+    }
+  }, [plan?.title, plan?.description]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function invalidate() {
     qc.invalidateQueries({ queryKey: ["plan", planId] });
@@ -32,6 +36,11 @@ export function PlanDetail({ planId, onDeleted }: Props) {
 
   const titleMutation = useMutation({
     mutationFn: (t: string) => plansApi.update(planId, { title: t }),
+    onSuccess: invalidate,
+  });
+
+  const descriptionMutation = useMutation({
+    mutationFn: (d: string) => plansApi.update(planId, { description: d }),
     onSuccess: invalidate,
   });
 
@@ -126,6 +135,15 @@ export function PlanDetail({ planId, onDeleted }: Props) {
           <Trash2 size={14} strokeWidth={2} />
         </button>
       </div>
+
+      <input
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        onBlur={() => description !== plan.description && descriptionMutation.mutate(description)}
+        onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()}
+        placeholder="Add a goal or context for this plan…"
+        className="mt-2 w-full bg-transparent text-[13px] text-zinc-400 outline-none placeholder:text-zinc-700"
+      />
 
       {/* Progress */}
       {plan.total_steps > 0 && (
