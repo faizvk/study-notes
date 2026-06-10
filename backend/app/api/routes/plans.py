@@ -14,7 +14,10 @@ from app.schemas.plan import (
     PlanRead,
     PlanSummary,
     PlanUpdate,
+    StepCreate,
     StepRead,
+    StepReorder,
+    StepUpdate,
 )
 
 router = APIRouter(prefix="/plans", tags=["plans"])
@@ -119,4 +122,89 @@ async def update_plan(
 async def delete_plan(plan_id: uuid.UUID, current_user: CurrentUser, db: DbSession) -> None:
     plan = await _owned_plan(db, current_user, plan_id)
     await db.delete(plan)
+    await db.commit()
+
+
+# ───────────────────────────── steps ─────────────────────────────
+
+
+async def _owned_step(db: DbSession, user: User, step_id: uuid.UUID) -> PlanStep:
+    step = (
+        await db.execute(
+            select(PlanStep)
+            .join(Plan, Plan.id == PlanStep.plan_id)
+            .where(PlanStep.id == step_id, Plan.owner_id == user.id)
+        )
+    ).scalar_one_or_none()
+    if step is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Step not found")
+    return step
+
+
+@router.post("/{plan_id}/steps", response_model=StepRead, status_code=status.HTTP_201_CREATED)
+async def create_step(
+    plan_id: uuid.UUID, payload: StepCreate, current_user: CurrentUser, db: DbSession
+) -> PlanStep:
+    await _owned_plan(db, current_user, plan_id)
+    if payload.topic_id is not None:
+        topic = await db.get(Topic, payload.topic_id)
+        if topic is None or topic.owner_id != current_user.id:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Linked note not found")
+    max_pos = (
+        await db.execute(
+            select(func.coalesce(func.max(PlanStep.position), -1)).where(PlanStep.plan_id == plan_id)
+        )
+    ).scalar_one()
+    step = PlanStep(
+        plan_id=plan_id,
+        title=payload.title,
+        note=payload.note,
+        due_at=payload.due_at,
+        topic_id=payload.topic_id,
+        position=int(max_pos) + 1,
+    )
+    db.add(step)
+    await db.commit()
+    await db.refresh(step)
+    return step
+
+
+@router.patch("/steps/{step_id}", response_model=StepRead)
+async def update_step(
+    step_id: uuid.UUID, payload: StepUpdate, current_user: CurrentUser, db: DbSession
+) -> PlanStep:
+    step = await _owned_step(db, current_user, step_id)
+    data = payload.model_dump(exclude_unset=True)
+    if "topic_id" in data and data["topic_id"] is not None:
+        topic = await db.get(Topic, data["topic_id"])
+        if topic is None or topic.owner_id != current_user.id:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Linked note not found")
+    for field, value in data.items():
+        setattr(step, field, value)
+    await db.commit()
+    await db.refresh(step)
+    return step
+
+
+@router.delete("/steps/{step_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_step(step_id: uuid.UUID, current_user: CurrentUser, db: DbSession) -> None:
+    step = await _owned_step(db, current_user, step_id)
+    await db.delete(step)
+    await db.commit()
+
+
+@router.post("/{plan_id}/steps/reorder", status_code=status.HTTP_204_NO_CONTENT)
+async def reorder_steps(
+    plan_id: uuid.UUID, payload: StepReorder, current_user: CurrentUser, db: DbSession
+) -> None:
+    await _owned_plan(db, current_user, plan_id)
+    steps = (
+        await db.execute(select(PlanStep).where(PlanStep.plan_id == plan_id))
+    ).scalars().all()
+    by_id = {s.id: s for s in steps}
+    for index, sid in enumerate(payload.ordered_ids):
+        step = by_id.get(sid)
+        if step is None:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Step {sid} not in plan")
+        step.position = index
     await db.commit()
