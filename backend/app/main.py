@@ -11,7 +11,7 @@ if sys.platform == "win32":
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import auth, files, search, topics, versions
+from app.api.routes import auth, files, plans, search, topics, versions
 from app.core.config import settings
 from app.core.database import engine
 from app.models import Base  # noqa: F401  (imports all models so metadata is populated)
@@ -40,7 +40,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-for module in (auth, topics, versions, files, search):
+for module in (auth, topics, versions, files, search, plans):
     app.include_router(module.router, prefix=settings.API_PREFIX)
 
 
