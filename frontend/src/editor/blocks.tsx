@@ -183,7 +183,7 @@ export function CodeBlock({ block, onChange, onRemove, onExitDown, register }: C
             className="flex h-7 items-center gap-1.5 rounded-md px-2 text-xs text-zinc-500 transition-colors hover:bg-white/5 hover:text-zinc-200"
           >
             {copied ? <Check size={12} strokeWidth={2.5} className="text-emerald-400" /> : <Copy size={12} strokeWidth={2} />}
-            {copied ? "Copied" : "Copy"}
+            <span className="hidden sm:inline">{copied ? "Copied" : "Copy"}</span>
           </button>
           <button
             onClick={() => onRemove(block.id)}
