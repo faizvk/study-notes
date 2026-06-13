@@ -51,7 +51,7 @@ interface MenuProps {
 export function SlashMenu({ items, selected, onPick, onHover }: MenuProps) {
   if (items.length === 0) return null;
   return (
-    <div className="animate-scale-in absolute left-0 top-full z-30 mt-1 w-72 overflow-hidden rounded-xl border border-white/10 bg-[#1d1d1d] py-1.5 shadow-2xl shadow-black/60">
+    <div className="animate-scale-in absolute left-0 top-full z-30 mt-1 w-72 max-w-[calc(100vw-2.5rem)] overflow-hidden rounded-xl border border-white/10 bg-[#1d1d1d] py-1.5 shadow-2xl shadow-black/60">
       {items.map((item, i) => (
         <button
           key={item.label}

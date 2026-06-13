@@ -21,7 +21,7 @@ export function NotePicker({ onPick, onClose }: Props) {
   return (
     <>
       <div className="fixed inset-0 z-20" onClick={onClose} />
-      <div className="animate-scale-in absolute right-0 top-full z-30 mt-1 w-72 overflow-hidden rounded-xl border border-white/10 bg-[#1d1d1d] shadow-2xl shadow-black/60">
+      <div className="animate-scale-in absolute right-0 top-full z-30 mt-1 w-72 max-w-[calc(100vw-2.5rem)] overflow-hidden rounded-xl border border-white/10 bg-[#1d1d1d] shadow-2xl shadow-black/60">
         <div className="flex items-center gap-2 border-b border-white/[0.06] px-3 py-2">
           <Search size={12} strokeWidth={2} className="shrink-0 text-zinc-500" />
           <input
