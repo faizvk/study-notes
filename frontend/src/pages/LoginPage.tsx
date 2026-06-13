@@ -30,7 +30,7 @@ export function LoginPage() {
     "mt-1.5 w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-3.5 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 transition-all duration-200 focus:border-indigo-400/50 focus:bg-white/[0.05] focus:outline-none focus:ring-2 focus:ring-indigo-500/15";
 
   return (
-    <div className="flex h-full items-center justify-center px-4">
+    <div className="flex h-full items-center justify-center overflow-y-auto px-4 py-8">
       <div className="animate-scale-in w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center gap-3">
           <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600">
