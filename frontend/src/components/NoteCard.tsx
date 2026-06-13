@@ -12,7 +12,7 @@ interface Props {
 
 export function NoteCard({ card, onOpen, onTogglePin, dragHandleProps }: Props) {
   return (
-    <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-white/[0.07] bg-white/[0.025] p-4 transition-colors duration-200 ease-out hover:border-white/[0.14] hover:bg-white/[0.04]">
+    <div className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-white/[0.07] bg-white/[0.025] p-3.5 transition-colors duration-200 ease-out hover:border-white/[0.14] hover:bg-white/[0.04] sm:p-4">
       <div className="mb-2 flex items-center justify-between">
         <button
           {...dragHandleProps}

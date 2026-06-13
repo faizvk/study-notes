@@ -208,7 +208,7 @@ export function SubtopicGrid({ parentId, title, addLabel }: Props) {
           onDragEnd={onDragEnd}
         >
           <SortableContext items={cards.map((c) => c.id)} strategy={rectSortingStrategy}>
-            <div className="stagger grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="stagger grid grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-3 lg:grid-cols-3">
               {cards.map((card) => (
                 <SortableCard
                   key={card.id}
