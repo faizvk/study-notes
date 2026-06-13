@@ -50,7 +50,7 @@ export function TopicTree() {
       return (
         <div key={node.id}>
           <div
-            className={`group flex items-center gap-1 rounded-lg py-1 pr-1.5 text-[13px] transition-colors duration-150 ${
+            className={`group flex items-center gap-1 rounded-lg py-1.5 pr-1.5 text-[13px] transition-colors duration-150 ${
               isSelected
                 ? "bg-indigo-500/15 text-indigo-200"
                 : "text-zinc-400 hover:bg-white/[0.04] hover:text-zinc-200"

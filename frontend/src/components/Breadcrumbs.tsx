@@ -14,13 +14,14 @@ export function Breadcrumbs({ id }: { id: string }) {
   const sep = <ChevronRight size={11} strokeWidth={2} className="shrink-0 text-zinc-700" />;
 
   return (
-    <nav className="flex min-w-0 flex-wrap items-center gap-1.5 text-xs text-zinc-500">
-      <Link to="/" className="transition-colors duration-150 hover:text-zinc-300">
+    <nav className="flex min-w-0 flex-nowrap items-center gap-1.5 overflow-hidden text-xs text-zinc-500">
+      <Link to="/" className="shrink-0 transition-colors duration-150 hover:text-zinc-300">
         Home
       </Link>
       {sep}
+      {/* Intermediate ancestors are hidden on phones to keep the row on one line. */}
       {ancestors.map((a) => (
-        <span key={a.id} className="flex min-w-0 items-center gap-1.5">
+        <span key={a.id} className="hidden min-w-0 items-center gap-1.5 sm:flex">
           <Link
             to={`/n/${a.id}`}
             className="max-w-[10rem] truncate transition-colors duration-150 hover:text-zinc-300"

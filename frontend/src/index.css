@@ -18,6 +18,30 @@ body,
   margin: 0;
 }
 
+/* Keep the app within the viewport width on small screens; stop iOS from
+   auto-inflating text on rotation. */
+html {
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  overflow-x: hidden;
+}
+
+/* Touch devices have no hover, so hover-only action buttons (drag grips, row
+   actions, delete icons) would be unreachable — reveal them on coarse pointers.
+   Matches both plain and named-group variants (group-hover/row, /code, /img…). */
+@media (hover: none) {
+  [class*="group-hover"][class*="opacity-100"] {
+    opacity: 1 !important;
+  }
+  /* Only reveal flex containers that hide *via* hover — not responsive
+     `sm:flex` toggles that happen to share the element. */
+  [class*="group-hover:flex"],
+  [class*="group-hover/"][class*=":flex"]:not([class*="sm:flex"]):not([class*="lg:flex"]) {
+    display: flex !important;
+  }
+}
+
 body {
   font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
@@ -55,6 +79,16 @@ body {
 /* ── Reusable surfaces ──────────────────────────────────────── */
 .hairline {
   border-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Respect notch / home-indicator areas on mobile devices. */
+@supports (padding: env(safe-area-inset-top)) {
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 }
 
 /* ── Gentle animations ──────────────────────────────────────────

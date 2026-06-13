@@ -104,7 +104,7 @@ export function CommandPalette({ open, initialTag, onClose }: Props) {
 
   return (
     <div
-      className="animate-fade-in fixed inset-0 z-50 flex items-start justify-center bg-zinc-950/70 pt-[18vh] backdrop-blur-sm"
+      className="animate-fade-in fixed inset-0 z-50 flex items-start justify-center bg-zinc-950/70 px-3 pt-20 backdrop-blur-sm sm:pt-[18vh]"
       onClick={onClose}
     >
       <div

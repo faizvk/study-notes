@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Star } from "lucide-react";
+import { PanelRight, Star } from "lucide-react";
 
 import { toEditorBlocks } from "../editor/convert";
 import { topicsApi } from "../lib/api";
+import { useIsMobile } from "../lib/useMediaQuery";
 import { Breadcrumbs } from "../components/Breadcrumbs";
 import { NoteContentEditor } from "../components/NoteContentEditor";
 import { NoteInfoPanel } from "../components/NoteInfoPanel";
@@ -17,13 +18,25 @@ export function NotePage() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const isMobile = useIsMobile();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [railOpen, setRailOpen] = useState(false);
   const { prev, next } = useAdjacentNotes(id);
 
   // Page-flip feel: land at the top of each note, and allow keyboard flips.
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: 0 });
   }, [id]);
+
+  // Lock background scroll while the study rail slide-over is open on mobile.
+  useEffect(() => {
+    if (!(isMobile && railOpen)) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [isMobile, railOpen]);
 
   const { data: topic, isLoading } = useQuery({
     queryKey: ["topic", id],
@@ -144,8 +157,8 @@ export function NotePage() {
 
   return (
     <div className="flex h-full min-h-0">
-      <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
-        <div className="animate-rise-in mx-auto w-full max-w-6xl px-6 pb-16 pt-6">
+      <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain">
+        <div className="animate-rise-in mx-auto w-full max-w-6xl px-3 pb-16 pt-4 sm:px-6 sm:pt-6">
           <div className="mb-4 flex items-center justify-between gap-3 px-1">
             <Breadcrumbs id={id} />
             <div className="flex shrink-0 items-center gap-1">
@@ -162,11 +175,21 @@ export function NotePage() {
               </button>
               <span className="mx-1 h-4 w-px bg-white/10" />
               <PagerArrows id={id} />
+              <button
+                onClick={() => {
+                  setShowVersions(false);
+                  setRailOpen(true);
+                }}
+                title="Details & history"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-zinc-500 transition-all duration-200 hover:bg-white/5 hover:text-zinc-200 active:scale-90 lg:hidden"
+              >
+                <PanelRight size={15} strokeWidth={1.75} />
+              </button>
             </div>
           </div>
 
           {/* Document sheet: black page; blocks inside sit on grey surfaces. */}
-          <div className="rounded-2xl border border-white/[0.09] bg-[#0d0d0d] px-8 py-7">
+          <div className="rounded-2xl border border-white/[0.09] bg-[#0d0d0d] px-4 py-5 sm:px-8 sm:py-7">
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -179,7 +202,7 @@ export function NotePage() {
                 if (e.key === "Enter") (e.target as HTMLInputElement).blur();
               }}
               placeholder="Untitled"
-              className="w-full border-none bg-transparent text-4xl font-bold tracking-tight text-zinc-50 placeholder:text-zinc-700 focus:outline-none"
+              className="w-full border-none bg-transparent text-2xl font-bold tracking-tight text-zinc-50 placeholder:text-zinc-700 focus:outline-none sm:text-4xl"
             />
 
             <TagEditor topic={topic} />
@@ -195,18 +218,48 @@ export function NotePage() {
         </div>
       </div>
 
-      {/* Right rail: study info by default, version history when toggled. */}
-      <div className="hidden w-72 shrink-0 overflow-y-auto rounded-tl-2xl bg-[var(--bg-side)] lg:block">
-        {showVersions ? (
+      {(() => {
+        const rail = showVersions ? (
           <VersionPanel
             topicId={id}
-            onClose={() => setShowVersions(false)}
+            onClose={() => (isMobile ? setRailOpen(false) : setShowVersions(false))}
             onRestored={() => setReloadNonce((n) => n + 1)}
           />
         ) : (
-          <NoteInfoPanel topic={topic} onOpenHistory={() => setShowVersions(true)} />
-        )}
-      </div>
+          <NoteInfoPanel
+            topic={topic}
+            onOpenHistory={() => setShowVersions(true)}
+            onClose={isMobile ? () => setRailOpen(false) : undefined}
+          />
+        );
+
+        // Desktop: persistent inline rail. Mobile: right slide-over + backdrop.
+        if (!isMobile) {
+          return (
+            <div className="hidden w-72 shrink-0 overflow-y-auto rounded-tl-2xl bg-[var(--bg-side)] lg:block">
+              {rail}
+            </div>
+          );
+        }
+        return (
+          <>
+            <div
+              className={`fixed inset-0 z-30 bg-black/60 transition-opacity duration-200 ${
+                railOpen ? "opacity-100" : "pointer-events-none opacity-0"
+              }`}
+              onClick={() => setRailOpen(false)}
+              aria-hidden
+            />
+            <div
+              className={`fixed inset-y-0 right-0 z-40 w-80 max-w-[88vw] overflow-y-auto bg-[var(--bg-side)] shadow-2xl shadow-black/60 transition-transform duration-200 ${
+                railOpen ? "translate-x-0" : "translate-x-full"
+              }`}
+            >
+              {rail}
+            </div>
+          </>
+        );
+      })()}
     </div>
   );
 }

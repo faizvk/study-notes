@@ -350,7 +350,7 @@ export function BlockEditor({ initial, onChange }: Props) {
       {blocks.map((block) => (
         <div key={block.id} id={`blk-${block.id}`} className="group/row relative flex items-start gap-1">
           {/* Gutter: add-below, visible on row hover. */}
-          <div className="flex w-6 shrink-0 justify-center pt-[5px] opacity-0 transition-opacity duration-150 group-hover/row:opacity-100">
+          <div className="hidden w-6 shrink-0 justify-center pt-[5px] opacity-0 transition-opacity duration-150 group-hover/row:opacity-100 sm:flex">
             <button
               tabIndex={-1}
               onClick={() => addParagraphAfter(block.id)}

@@ -27,9 +27,9 @@ export function PlannerPage() {
   }, [plans, selectedId]);
 
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto">
-      <div className="animate-rise-in mx-auto w-full max-w-6xl px-8 pb-16 pt-12">
-        <h1 className="text-3xl font-bold tracking-tight text-zinc-50">Planner</h1>
+    <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain">
+      <div className="animate-rise-in mx-auto w-full max-w-6xl px-4 pb-16 pt-8 sm:px-8 sm:pt-12">
+        <h1 className="text-2xl font-bold tracking-tight text-zinc-50 sm:text-3xl">Planner</h1>
         <p className="mt-2 max-w-lg text-sm leading-relaxed text-zinc-500">
           Roadmaps for the journey, checklists for the grind, reminders so nothing slips.
           Link steps to notes to jump straight into the material.
@@ -37,9 +37,9 @@ export function PlannerPage() {
 
         <AgendaStrip onPick={setSelectedId} />
 
-        <div className="mt-8 flex gap-6">
+        <div className="mt-8 flex flex-col gap-4 lg:flex-row lg:gap-6">
           {/* Plans column */}
-          <div className="w-72 shrink-0 space-y-4">
+          <div className="w-full space-y-4 lg:w-72 lg:shrink-0">
             <NewPlanButton onCreated={setSelectedId} />
             {isLoading ? (
               <p className="px-1 text-sm text-zinc-600">Loading…</p>

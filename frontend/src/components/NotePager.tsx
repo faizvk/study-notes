@@ -72,7 +72,7 @@ export function PagerFooter({ id }: { id: string }) {
   if (!prev && !next) return null;
 
   return (
-    <nav className="mt-10 flex gap-3">
+    <nav className="mt-10 flex flex-col gap-3 sm:flex-row">
       {prev ? (
         <button
           onClick={() => navigate(`/n/${prev.id}`)}

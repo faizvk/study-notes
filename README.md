@@ -20,6 +20,10 @@ images, links) that supports paste & image upload.
 - **Pin / favourite** — pin notes to the sidebar for quick access.
 - **Drag & drop** — drag a card's grip to reorder; drop a card onto another to nest it.
 - **Collapsible sidebar** — toggle the tree/pinned/tags sidebar; dark theme throughout.
+- **Fully responsive** — on phones/tablets the sidebar becomes a slide-over drawer
+  (with a top menu/search bar), the note's study rail opens as a right slide-over,
+  layouts stack, hover-only actions are revealed for touch, card drag uses
+  press-and-hold so swipes still scroll, and safe-area insets are respected.
 - **Planner** — roadmaps (ordered milestones) and checklists for the work around studying:
   steps with todo/doing/done status, due dates with overdue/today reminders, progress
   bars, and steps that link straight to the relevant note. A due-now badge on the

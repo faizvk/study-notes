@@ -42,7 +42,7 @@ export function AgendaStrip({ onPick }: Props) {
               key={item.step_id}
               onClick={() => onPick(item.plan_id)}
               title={`${item.plan_title} — due ${new Date(item.due_at).toLocaleDateString()}`}
-              className={`flex max-w-xs items-center gap-2 rounded-xl border px-3 py-1.5 text-left text-xs transition-colors duration-150 ${TONES[b]}`}
+              className={`flex max-w-[70vw] items-center gap-2 rounded-xl border px-3 py-1.5 text-left text-xs transition-colors duration-150 sm:max-w-xs ${TONES[b]}`}
             >
               <span className="truncate font-medium">{item.title || "Untitled step"}</span>
               <span className="shrink-0 opacity-70">

@@ -84,7 +84,7 @@ export function StepRow({ step, index, kind, onUpdate, onRemove, onMove }: StepR
               onUpdate(step.id, { topic_id: null });
             }}
             title={`Open note: ${step.topic_title ?? "note"} (right-click to unlink)`}
-            className="flex max-w-[10rem] items-center gap-1 truncate rounded-md bg-indigo-500/10 px-1.5 py-0.5 text-[11px] text-indigo-300 transition-colors hover:bg-indigo-500/20"
+            className="flex max-w-[6rem] items-center gap-1 truncate rounded-md bg-indigo-500/10 px-1.5 py-0.5 text-[11px] text-indigo-300 transition-colors hover:bg-indigo-500/20 sm:max-w-[10rem]"
           >
             <Link2 size={10} strokeWidth={2} />
             <span className="truncate">{step.topic_title ?? "note"}</span>
