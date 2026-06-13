@@ -18,8 +18,8 @@ export function HomePage() {
 
   return (
     <div className="min-h-0 flex-1 overflow-y-auto">
-      <div className="animate-rise-in mx-auto w-full max-w-6xl px-8 pb-16 pt-12">
-        <h1 className="text-3xl font-bold tracking-tight text-zinc-50">Your notes</h1>
+      <div className="animate-rise-in mx-auto w-full max-w-6xl px-4 pb-16 pt-8 sm:px-8 sm:pt-12">
+        <h1 className="text-2xl font-bold tracking-tight text-zinc-50 sm:text-3xl">Your notes</h1>
         <p className="mt-2 max-w-lg text-sm leading-relaxed text-zinc-500">
           Open a note to add content and subtopics. Drag the grip to reorder, or drop a
           card onto another to nest it.
