@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Star } from "lucide-react";
+import { PanelRight, Star } from "lucide-react";
 
 import { toEditorBlocks } from "../editor/convert";
 import { topicsApi } from "../lib/api";
+import { useIsMobile } from "../lib/useMediaQuery";
 import { Breadcrumbs } from "../components/Breadcrumbs";
 import { NoteContentEditor } from "../components/NoteContentEditor";
 import { NoteInfoPanel } from "../components/NoteInfoPanel";
@@ -17,7 +18,9 @@ export function NotePage() {
   const { id = "" } = useParams();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const isMobile = useIsMobile();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [railOpen, setRailOpen] = useState(false);
   const { prev, next } = useAdjacentNotes(id);
 
   // Page-flip feel: land at the top of each note, and allow keyboard flips.
@@ -162,6 +165,16 @@ export function NotePage() {
               </button>
               <span className="mx-1 h-4 w-px bg-white/10" />
               <PagerArrows id={id} />
+              <button
+                onClick={() => {
+                  setShowVersions(false);
+                  setRailOpen(true);
+                }}
+                title="Details & history"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-zinc-500 transition-all duration-200 hover:bg-white/5 hover:text-zinc-200 active:scale-90 lg:hidden"
+              >
+                <PanelRight size={15} strokeWidth={1.75} />
+              </button>
             </div>
           </div>
 
@@ -195,18 +208,44 @@ export function NotePage() {
         </div>
       </div>
 
-      {/* Right rail: study info by default, version history when toggled. */}
-      <div className="hidden w-72 shrink-0 overflow-y-auto rounded-tl-2xl bg-[var(--bg-side)] lg:block">
-        {showVersions ? (
+      {(() => {
+        const rail = showVersions ? (
           <VersionPanel
             topicId={id}
-            onClose={() => setShowVersions(false)}
+            onClose={() => (isMobile ? setRailOpen(false) : setShowVersions(false))}
             onRestored={() => setReloadNonce((n) => n + 1)}
           />
         ) : (
           <NoteInfoPanel topic={topic} onOpenHistory={() => setShowVersions(true)} />
-        )}
-      </div>
+        );
+
+        // Desktop: persistent inline rail. Mobile: right slide-over + backdrop.
+        if (!isMobile) {
+          return (
+            <div className="hidden w-72 shrink-0 overflow-y-auto rounded-tl-2xl bg-[var(--bg-side)] lg:block">
+              {rail}
+            </div>
+          );
+        }
+        return (
+          <>
+            <div
+              className={`fixed inset-0 z-30 bg-black/60 transition-opacity duration-200 ${
+                railOpen ? "opacity-100" : "pointer-events-none opacity-0"
+              }`}
+              onClick={() => setRailOpen(false)}
+              aria-hidden
+            />
+            <div
+              className={`fixed inset-y-0 right-0 z-40 w-80 max-w-[88vw] overflow-y-auto bg-[var(--bg-side)] shadow-2xl shadow-black/60 transition-transform duration-200 ${
+                railOpen ? "translate-x-0" : "translate-x-full"
+              }`}
+            >
+              {rail}
+            </div>
+          </>
+        );
+      })()}
     </div>
   );
 }
