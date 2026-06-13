@@ -138,7 +138,8 @@ export function NoteInfoPanel({ topic, onOpenHistory, onClose }: Props) {
         </div>
       </Section>
 
-      {/* Shortcuts cheat-sheet */}
+      {/* Shortcuts cheat-sheet — keyboard-only, so hidden on phones. */}
+      <div className="hidden sm:block">
       <Section title="Shortcuts">
         <div className="space-y-1 px-2 text-xs text-zinc-500">
           <Shortcut k="/" label="Insert block (in editor)" />
@@ -152,6 +153,7 @@ export function NoteInfoPanel({ topic, onOpenHistory, onClose }: Props) {
           <Shortcut k="/ · Ctrl K" label="Search everything" />
         </div>
       </Section>
+      </div>
     </div>
   );
 }
