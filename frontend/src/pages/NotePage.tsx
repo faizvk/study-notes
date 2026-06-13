@@ -28,6 +28,16 @@ export function NotePage() {
     scrollRef.current?.scrollTo({ top: 0 });
   }, [id]);
 
+  // Lock background scroll while the study rail slide-over is open on mobile.
+  useEffect(() => {
+    if (!(isMobile && railOpen)) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [isMobile, railOpen]);
+
   const { data: topic, isLoading } = useQuery({
     queryKey: ["topic", id],
     queryFn: () => topicsApi.get(id),
