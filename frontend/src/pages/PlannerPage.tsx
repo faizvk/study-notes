@@ -27,7 +27,7 @@ export function PlannerPage() {
   }, [plans, selectedId]);
 
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto">
+    <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain">
       <div className="animate-rise-in mx-auto w-full max-w-6xl px-4 pb-16 pt-8 sm:px-8 sm:pt-12">
         <h1 className="text-2xl font-bold tracking-tight text-zinc-50 sm:text-3xl">Planner</h1>
         <p className="mt-2 max-w-lg text-sm leading-relaxed text-zinc-500">

@@ -157,7 +157,7 @@ export function NotePage() {
 
   return (
     <div className="flex h-full min-h-0">
-      <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
+      <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain">
         <div className="animate-rise-in mx-auto w-full max-w-6xl px-3 pb-16 pt-4 sm:px-6 sm:pt-6">
           <div className="mb-4 flex items-center justify-between gap-3 px-1">
             <Breadcrumbs id={id} />
