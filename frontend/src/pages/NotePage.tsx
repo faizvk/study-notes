@@ -216,7 +216,11 @@ export function NotePage() {
             onRestored={() => setReloadNonce((n) => n + 1)}
           />
         ) : (
-          <NoteInfoPanel topic={topic} onOpenHistory={() => setShowVersions(true)} />
+          <NoteInfoPanel
+            topic={topic}
+            onOpenHistory={() => setShowVersions(true)}
+            onClose={isMobile ? () => setRailOpen(false) : undefined}
+          />
         );
 
         // Desktop: persistent inline rail. Mobile: right slide-over + backdrop.

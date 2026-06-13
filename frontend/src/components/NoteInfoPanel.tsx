@@ -9,6 +9,7 @@ import {
   Layers,
   Link2,
   Star,
+  X,
 } from "lucide-react";
 
 import { toEditorBlocks } from "../editor/convert";
@@ -18,9 +19,10 @@ import type { Topic } from "../types";
 interface Props {
   topic: Topic;
   onOpenHistory: () => void;
+  onClose?: () => void;
 }
 
-export function NoteInfoPanel({ topic, onOpenHistory }: Props) {
+export function NoteInfoPanel({ topic, onOpenHistory, onClose }: Props) {
   const qc = useQueryClient();
   const [checkpointDone, setCheckpointDone] = useState(false);
 
@@ -65,6 +67,22 @@ export function NoteInfoPanel({ topic, onOpenHistory }: Props) {
 
   return (
     <div className="flex h-full flex-col gap-5 overflow-y-auto p-4">
+      {/* Mobile-only header with a close control for the slide-over. */}
+      {onClose && (
+        <div className="-mt-1 flex items-center justify-between lg:hidden">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-600">
+            Details
+          </span>
+          <button
+            onClick={onClose}
+            className="flex h-7 w-7 items-center justify-center rounded-md text-zinc-500 hover:bg-white/5 hover:text-zinc-200"
+            aria-label="Close"
+          >
+            <X size={15} strokeWidth={2} />
+          </button>
+        </div>
+      )}
+
       {/* Outline */}
       {headings.length > 0 && (
         <Section title="On this page">
