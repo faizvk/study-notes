@@ -81,6 +81,16 @@ body {
   border-color: rgba(255, 255, 255, 0.06);
 }
 
+/* Respect notch / home-indicator areas on mobile devices. */
+@supports (padding: env(safe-area-inset-top)) {
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
 /* ── Gentle animations ──────────────────────────────────────────
    Keyframes declare only `from` and animate to the element's natural
    style, with `backwards` fill. A persistent (filled) transform would

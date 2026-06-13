@@ -88,7 +88,7 @@ export function AppLayout() {
       </div>
 
       {/* Bottom: search + account */}
-      <div className="hairline space-y-1 border-t p-2">
+      <div className="hairline safe-bottom space-y-1 border-t p-2">
         <button
           onClick={() => openPalette()}
           className="flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-[13px] text-zinc-400 transition-colors duration-200 hover:bg-white/[0.05] hover:text-zinc-200"
@@ -151,7 +151,7 @@ export function AppLayout() {
 
       <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
         {isMobile ? (
-          <header className="flex h-12 shrink-0 items-center justify-between gap-2 border-b border-white/[0.06] px-1.5">
+          <header className="safe-top flex h-12 shrink-0 items-center justify-between gap-2 border-b border-white/[0.06] px-1.5">
             <button
               onClick={() => setDrawerOpen(true)}
               title="Menu"
