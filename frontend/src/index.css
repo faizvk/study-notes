@@ -28,12 +28,13 @@ body {
 }
 
 /* Touch devices have no hover, so hover-only action buttons (drag grips, row
-   actions, delete icons) would be unreachable — reveal them on coarse pointers. */
+   actions, delete icons) would be unreachable — reveal them on coarse pointers.
+   Matches both plain and named-group variants (group-hover/row, /code, /img…). */
 @media (hover: none) {
-  [class*="group-hover:opacity-100"] {
+  [class*="group-hover"][class*="opacity-100"] {
     opacity: 1 !important;
   }
-  [class*="group-hover:flex"] {
+  [class*="group-hover"][class*=":flex"] {
     display: flex !important;
   }
 }
