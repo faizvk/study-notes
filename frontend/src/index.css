@@ -34,7 +34,10 @@ body {
   [class*="group-hover"][class*="opacity-100"] {
     opacity: 1 !important;
   }
-  [class*="group-hover"][class*=":flex"] {
+  /* Only reveal flex containers that hide *via* hover — not responsive
+     `sm:flex` toggles that happen to share the element. */
+  [class*="group-hover:flex"],
+  [class*="group-hover/"][class*=":flex"]:not([class*="sm:flex"]):not([class*="lg:flex"]) {
     display: flex !important;
   }
 }
