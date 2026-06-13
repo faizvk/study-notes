@@ -28,6 +28,16 @@ export function AppLayout() {
     setDrawerOpen(false);
   }, [location.pathname]);
 
+  // Lock background scroll while the drawer is open on mobile.
+  useEffect(() => {
+    if (!(isMobile && drawerOpen)) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [isMobile, drawerOpen]);
+
   useEffect(() => {
     function editing(): boolean {
       const el = document.activeElement as HTMLElement | null;
