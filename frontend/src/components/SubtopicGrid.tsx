@@ -6,7 +6,8 @@ import {
   closestCenter,
   DndContext,
   DragOverlay,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   pointerWithin,
   useDroppable,
   useSensor,
@@ -43,7 +44,12 @@ export function SubtopicGrid({ parentId, title, addLabel }: Props) {
   const [newTitle, setNewTitle] = useState("");
   const [activeId, setActiveId] = useState<string | null>(null);
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }));
+  // Mouse drags after a small move; touch requires a short press-and-hold so a
+  // normal finger swipe scrolls the page instead of starting a card drag.
+  const sensors = useSensors(
+    useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } })
+  );
 
   const createMutation = useMutation({
     mutationFn: (t: string) => topicsApi.create({ title: t || "Untitled", parent_id: parentId }),
