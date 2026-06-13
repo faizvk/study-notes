@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
-import { BookOpen, LogOut, PanelLeft, Search } from "lucide-react";
+import { BookOpen, LogOut, Menu, PanelLeft, Search } from "lucide-react";
 
 import { useAuth } from "../auth/AuthContext";
 import { useIsMobile } from "../lib/useMediaQuery";
@@ -150,14 +150,36 @@ export function AppLayout() {
       )}
 
       <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
-        {!sidebarOpen && (
-          <button
-            onClick={openSidebar}
-            title="Show sidebar"
-            className="absolute left-3 top-3 z-20 flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-[var(--bg-side)] text-zinc-400 transition-colors duration-200 hover:text-zinc-100"
-          >
-            <PanelLeft size={15} strokeWidth={1.75} />
-          </button>
+        {isMobile ? (
+          <header className="flex h-12 shrink-0 items-center justify-between gap-2 border-b border-white/[0.06] px-1.5">
+            <button
+              onClick={() => setDrawerOpen(true)}
+              title="Menu"
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-zinc-400 transition-colors duration-200 hover:bg-white/5 hover:text-zinc-100"
+            >
+              <Menu size={18} strokeWidth={1.75} />
+            </button>
+            <span className="text-[13px] font-semibold tracking-tight text-zinc-300">
+              Study Notes
+            </span>
+            <button
+              onClick={() => openPalette()}
+              title="Search"
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-zinc-400 transition-colors duration-200 hover:bg-white/5 hover:text-zinc-100"
+            >
+              <Search size={16} strokeWidth={2} />
+            </button>
+          </header>
+        ) : (
+          !desktopOpen && (
+            <button
+              onClick={openSidebar}
+              title="Show sidebar"
+              className="absolute left-3 top-3 z-20 flex h-8 w-8 items-center justify-center rounded-lg border border-white/[0.08] bg-[var(--bg-side)] text-zinc-400 transition-colors duration-200 hover:text-zinc-100"
+            >
+              <PanelLeft size={15} strokeWidth={1.75} />
+            </button>
+          )
         )}
         <Outlet />
       </main>
