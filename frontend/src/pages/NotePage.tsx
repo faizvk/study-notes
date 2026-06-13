@@ -145,7 +145,7 @@ export function NotePage() {
   return (
     <div className="flex h-full min-h-0">
       <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
-        <div className="animate-rise-in mx-auto w-full max-w-6xl px-6 pb-16 pt-6">
+        <div className="animate-rise-in mx-auto w-full max-w-6xl px-3 pb-16 pt-4 sm:px-6 sm:pt-6">
           <div className="mb-4 flex items-center justify-between gap-3 px-1">
             <Breadcrumbs id={id} />
             <div className="flex shrink-0 items-center gap-1">
@@ -166,7 +166,7 @@ export function NotePage() {
           </div>
 
           {/* Document sheet: black page; blocks inside sit on grey surfaces. */}
-          <div className="rounded-2xl border border-white/[0.09] bg-[#0d0d0d] px-8 py-7">
+          <div className="rounded-2xl border border-white/[0.09] bg-[#0d0d0d] px-4 py-5 sm:px-8 sm:py-7">
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -179,7 +179,7 @@ export function NotePage() {
                 if (e.key === "Enter") (e.target as HTMLInputElement).blur();
               }}
               placeholder="Untitled"
-              className="w-full border-none bg-transparent text-4xl font-bold tracking-tight text-zinc-50 placeholder:text-zinc-700 focus:outline-none"
+              className="w-full border-none bg-transparent text-2xl font-bold tracking-tight text-zinc-50 placeholder:text-zinc-700 focus:outline-none sm:text-4xl"
             />
 
             <TagEditor topic={topic} />
