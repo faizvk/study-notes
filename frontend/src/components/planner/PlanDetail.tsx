@@ -109,7 +109,7 @@ export function PlanDetail({ planId, onDeleted }: Props) {
   }
 
   return (
-    <div className="rounded-2xl border border-white/[0.09] bg-[#0d0d0d] p-6">
+    <div className="rounded-2xl border border-white/[0.09] bg-[#0d0d0d] p-4 sm:p-6">
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 flex-1 items-center gap-2.5">
