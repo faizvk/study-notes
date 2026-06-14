@@ -44,7 +44,7 @@ export function TextBlock({ block, placeholder, solo, onInput, onKeyDown, onPast
     if (el && el.textContent !== (block.text ?? "")) {
       el.textContent = block.text ?? "";
     }
-  });
+  }, [block.text]);
 
   // Must be a layout effect: the editor focuses freshly created blocks in its
   // own layout effect, which runs AFTER children's — a passive effect here

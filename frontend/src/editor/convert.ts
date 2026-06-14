@@ -19,7 +19,9 @@ export function toEditorBlocks(raw: unknown): EditorBlock[] {
     // Our own format: `type` is one of ours and content is flat.
     if (typeof b.type === "string" && !("props" in b) && !Array.isArray(b.content)) {
       blocks.push({
-        id: typeof b.id === "string" ? b.id : crypto.randomUUID(),
+        // Stored id is kept; otherwise a *deterministic* positional id so every
+        // caller (editor, outline, search-jump) agrees on the same DOM ids.
+        id: typeof b.id === "string" ? b.id : `b${blocks.length}`,
         type: (b.type as EditorBlock["type"]) ?? "paragraph",
         text: typeof b.text === "string" ? b.text : "",
         language: typeof b.language === "string" ? b.language : undefined,
@@ -28,7 +30,13 @@ export function toEditorBlocks(raw: unknown): EditorBlock[] {
       continue;
     }
 
-    blocks.push(...fromBlockNote(b));
+    // Legacy (BlockNote) blocks have no stable id — assign deterministic ones by
+    // position instead of the random ids newBlock() produces, so conversions are
+    // reproducible across components.
+    for (const converted of fromBlockNote(b)) {
+      converted.id = `b${blocks.length}`;
+      blocks.push(converted);
+    }
   }
   return blocks.length > 0 ? blocks : [newBlock()];
 }

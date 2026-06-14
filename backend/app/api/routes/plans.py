@@ -171,10 +171,19 @@ async def _owned_step(db: DbSession, user: User, step_id: uuid.UUID) -> PlanStep
     return step
 
 
+async def _step_read(db: DbSession, step: PlanStep) -> StepRead:
+    """Serialise a step, resolving its linked note's title for the response."""
+    title: str | None = None
+    if step.topic_id:
+        topic = await db.get(Topic, step.topic_id)
+        title = topic.title if topic else None
+    return StepRead.model_validate(step).model_copy(update={"topic_title": title})
+
+
 @router.post("/{plan_id}/steps", response_model=StepRead, status_code=status.HTTP_201_CREATED)
 async def create_step(
     plan_id: uuid.UUID, payload: StepCreate, current_user: CurrentUser, db: DbSession
-) -> PlanStep:
+) -> StepRead:
     await _owned_plan(db, current_user, plan_id)
     if payload.topic_id is not None:
         topic = await db.get(Topic, payload.topic_id)
@@ -196,13 +205,13 @@ async def create_step(
     db.add(step)
     await db.commit()
     await db.refresh(step)
-    return step
+    return await _step_read(db, step)
 
 
 @router.patch("/steps/{step_id}", response_model=StepRead)
 async def update_step(
     step_id: uuid.UUID, payload: StepUpdate, current_user: CurrentUser, db: DbSession
-) -> PlanStep:
+) -> StepRead:
     step = await _owned_step(db, current_user, step_id)
     data = payload.model_dump(exclude_unset=True)
     if "topic_id" in data and data["topic_id"] is not None:
@@ -213,7 +222,7 @@ async def update_step(
         setattr(step, field, value)
     await db.commit()
     await db.refresh(step)
-    return step
+    return await _step_read(db, step)
 
 
 @router.delete("/steps/{step_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -232,9 +241,13 @@ async def reorder_steps(
         await db.execute(select(PlanStep).where(PlanStep.plan_id == plan_id))
     ).scalars().all()
     by_id = {s.id: s for s in steps}
+    # Require a complete, duplicate-free permutation so no step is left with a
+    # stale position (which would create gaps or ambiguous ordering).
+    if set(payload.ordered_ids) != set(by_id.keys()) or len(payload.ordered_ids) != len(by_id):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="ordered_ids must list every step in the plan exactly once",
+        )
     for index, sid in enumerate(payload.ordered_ids):
-        step = by_id.get(sid)
-        if step is None:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Step {sid} not in plan")
-        step.position = index
+        by_id[sid].position = index
     await db.commit()

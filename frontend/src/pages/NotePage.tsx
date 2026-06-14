@@ -60,14 +60,20 @@ export function NotePage() {
         (b.url ?? "").toLowerCase().includes(needle)
     );
     if (!target) return;
-    // Let the editor mount its rows first.
-    window.setTimeout(() => {
+    // Retry briefly until the editor has mounted the row (avoids a missed jump
+    // when the editor renders a touch slower than a single fixed timeout).
+    let attempts = 0;
+    const tryScroll = () => {
       const el = document.getElementById(`blk-${target.id}`);
-      if (!el) return;
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-      el.classList.add("flash-jump");
-      window.setTimeout(() => el.classList.remove("flash-jump"), 1800);
-    }, 120);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        el.classList.add("flash-jump");
+        window.setTimeout(() => el.classList.remove("flash-jump"), 1800);
+      } else if (attempts++ < 12) {
+        window.setTimeout(tryScroll, 60);
+      }
+    };
+    window.setTimeout(tryScroll, 80);
   }, [topic, id, searchQuery]);
 
   const [title, setTitle] = useState("");
@@ -111,6 +117,10 @@ export function NotePage() {
     }
     function onKey(e: KeyboardEvent) {
       const free = !editing();
+      if (e.key === "Escape") {
+        setRailOpen(false);
+        return;
+      }
       if (e.ctrlKey && e.altKey && e.key === "ArrowRight" && next) {
         e.preventDefault();
         navigate(`/n/${next.id}`);

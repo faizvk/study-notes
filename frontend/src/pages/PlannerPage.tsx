@@ -56,7 +56,7 @@ export function PlannerPage() {
           {/* Detail column */}
           <div className="min-w-0 flex-1">
             {selectedId ? (
-              <PlanDetail planId={selectedId} onDeleted={() => setSelectedId(null)} />
+              <PlanDetail key={selectedId} planId={selectedId} onDeleted={() => setSelectedId(null)} />
             ) : (
               <div className="flex h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-white/[0.08] text-center">
                 <ListTodo size={22} strokeWidth={1.5} className="text-zinc-700" />

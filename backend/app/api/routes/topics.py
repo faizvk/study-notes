@@ -144,19 +144,27 @@ async def reorder_topics(payload: TopicReorder, current_user: CurrentUser, db: D
         )
     ).scalars().all()
     by_id = {t.id: t for t in topics}
-    for index, tid in enumerate(payload.ordered_ids):
-        topic = by_id.get(tid)
-        if topic is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Topic {tid} not found")
-        # Reorder only rearranges existing siblings — reparenting must go through
-        # /move, which performs cycle detection. Without this check a crafted call
-        # could set an ancestor's parent to its own descendant and corrupt the tree.
-        if topic.parent_id != payload.parent_id:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Topic {tid} is not a child of the given parent",
+    # The payload must list the parent's children exactly once each, so reordering
+    # can't leave unlisted siblings with stale positions or accept duplicates.
+    existing = (
+        await db.execute(
+            select(Topic.id).where(
+                Topic.owner_id == current_user.id,
+                Topic.parent_id.is_(None)
+                if payload.parent_id is None
+                else Topic.parent_id == payload.parent_id,
             )
-        topic.position = index
+        )
+    ).scalars().all()
+    if set(payload.ordered_ids) != set(existing) or len(payload.ordered_ids) != len(existing):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="ordered_ids must list every sibling under the parent exactly once",
+        )
+    for index, tid in enumerate(payload.ordered_ids):
+        # Reparenting must go through /move (which does cycle detection); reorder
+        # only rearranges existing siblings.
+        by_id[tid].position = index
     await db.commit()
 
 
