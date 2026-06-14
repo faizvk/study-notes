@@ -117,6 +117,10 @@ export function NotePage() {
     }
     function onKey(e: KeyboardEvent) {
       const free = !editing();
+      if (e.key === "Escape") {
+        setRailOpen(false);
+        return;
+      }
       if (e.ctrlKey && e.altKey && e.key === "ArrowRight" && next) {
         e.preventDefault();
         navigate(`/n/${next.id}`);
