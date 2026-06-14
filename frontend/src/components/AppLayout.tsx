@@ -57,6 +57,8 @@ export function AppLayout() {
         // Quick search when just reading (inside the editor "/" is the block menu).
         e.preventDefault();
         setPalette({ open: true });
+      } else if (e.key === "Escape") {
+        setDrawerOpen(false);
       }
     }
     window.addEventListener("keydown", onKey);
