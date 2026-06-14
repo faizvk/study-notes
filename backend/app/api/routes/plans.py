@@ -232,9 +232,13 @@ async def reorder_steps(
         await db.execute(select(PlanStep).where(PlanStep.plan_id == plan_id))
     ).scalars().all()
     by_id = {s.id: s for s in steps}
+    # Require a complete, duplicate-free permutation so no step is left with a
+    # stale position (which would create gaps or ambiguous ordering).
+    if set(payload.ordered_ids) != set(by_id.keys()) or len(payload.ordered_ids) != len(by_id):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="ordered_ids must list every step in the plan exactly once",
+        )
     for index, sid in enumerate(payload.ordered_ids):
-        step = by_id.get(sid)
-        if step is None:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Step {sid} not in plan")
-        step.position = index
+        by_id[sid].position = index
     await db.commit()
