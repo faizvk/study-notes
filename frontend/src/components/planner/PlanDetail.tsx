@@ -62,25 +62,51 @@ export function PlanDetail({ planId, onDeleted }: Props) {
     onSuccess: invalidate,
   });
 
-  // Step edits: update the cache immediately, debounce the server PATCH per step.
+  // Step edits: reflect in cache immediately, then debounce a *coalesced* PATCH
+  // per step — merging fields so editing two fields within the window doesn't
+  // drop the first, and flushing on unmount so fast navigation can't lose edits.
   const timers = useRef(new Map<string, number>());
+  const pending = useRef(new Map<string, Partial<PlanStep>>());
+
+  function flushStep(stepId: string) {
+    const t = timers.current.get(stepId);
+    if (t) window.clearTimeout(t);
+    timers.current.delete(stepId);
+    const patch = pending.current.get(stepId);
+    pending.current.delete(stepId);
+    if (patch && Object.keys(patch).length > 0) {
+      void plansApi
+        .updateStep(stepId, patch as Parameters<typeof plansApi.updateStep>[1])
+        .then(invalidate)
+        .catch(invalidate);
+    }
+  }
+
+  function cancelStep(stepId: string) {
+    const t = timers.current.get(stepId);
+    if (t) window.clearTimeout(t);
+    timers.current.delete(stepId);
+    pending.current.delete(stepId);
+  }
+
   function updateStep(stepId: string, patch: Partial<PlanStep>) {
     qc.setQueryData<Plan>(["plan", planId], (cur) =>
       cur
         ? { ...cur, steps: cur.steps.map((s) => (s.id === stepId ? { ...s, ...patch } : s)) }
         : cur
     );
+    pending.current.set(stepId, { ...pending.current.get(stepId), ...patch });
     window.clearTimeout(timers.current.get(stepId));
-    timers.current.set(
-      stepId,
-      window.setTimeout(() => {
-        void plansApi
-          .updateStep(stepId, patch as Parameters<typeof plansApi.updateStep>[1])
-          .then(invalidate)
-          .catch(invalidate);
-      }, 500)
-    );
+    timers.current.set(stepId, window.setTimeout(() => flushStep(stepId), 500));
   }
+
+  // Flush any still-pending step edits when this plan view unmounts.
+  useEffect(() => {
+    return () => {
+      for (const stepId of Array.from(pending.current.keys())) flushStep(stepId);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function moveStep(stepId: string, dir: -1 | 1) {
     const cur = qc.getQueryData<Plan>(["plan", planId]);
@@ -169,7 +195,10 @@ export function PlanDetail({ planId, onDeleted }: Props) {
             index={i}
             kind={plan.kind}
             onUpdate={updateStep}
-            onRemove={(id) => removeMutation.mutate(id)}
+            onRemove={(removeId) => {
+              cancelStep(removeId);
+              removeMutation.mutate(removeId);
+            }}
             onMove={moveStep}
           />
         ))}
