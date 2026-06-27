@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -31,6 +32,19 @@ class Settings(BaseSettings):
 
     # Max upload size (megabytes).
     MAX_UPLOAD_MB: int = 10
+
+    @model_validator(mode="after")
+    def _normalize_database_url(self) -> "Settings":
+        """Accept a provider's raw connection string (e.g. Neon/Supabase give
+        ``postgres://`` or ``postgresql://``) and coerce it to the psycopg3 driver
+        the app uses, so the env var can be pasted verbatim."""
+        url = self.DATABASE_URL
+        if url.startswith("postgres://"):
+            url = "postgresql://" + url[len("postgres://") :]
+        if url.startswith("postgresql://"):
+            url = "postgresql+psycopg://" + url[len("postgresql://") :]
+        self.DATABASE_URL = url
+        return self
 
     @property
     def cors_origins_list(self) -> list[str]:
