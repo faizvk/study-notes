@@ -135,6 +135,46 @@ alembic upgrade head
 | `PATCH/DELETE` | `/api/plans/steps/{id}` | Update status/title/due/link, delete |
 | `POST` | `/api/plans/{id}/steps/reorder` | Reorder steps |
 
+## Deploy for free
+
+A fully-free, no-credit-card setup using three providers:
+
+| Piece | Host | Notes |
+|---|---|---|
+| Database | **Neon** | Free serverless Postgres, persistent |
+| Backend (FastAPI) | **Render** | Free web service (sleeps after ~15 min idle) |
+| Frontend (React) | **Vercel** | Free static hosting + global CDN |
+
+**1. Database — Neon**
+1. Create a project at [neon.tech](https://neon.tech).
+2. Copy the connection string (looks like `postgresql://user:pass@host/db?sslmode=require`).
+   You can paste it as-is — the app rewrites it to the psycopg driver automatically.
+
+**2. Backend — Render**
+1. Push this repo to GitHub, then on [render.com](https://render.com) → **New → Blueprint**,
+   pick the repo (it reads `render.yaml`). Or **New → Web Service**, choose the repo,
+   set **Root Directory** = `backend`, **Runtime** = Docker.
+2. Set environment variables:
+   - `DATABASE_URL` = your Neon string
+   - `CORS_ORIGINS` = your Vercel URL (add after step 3, e.g. `https://study-notes.vercel.app`)
+   - `SECRET_KEY` = a long random string (Blueprint auto-generates one)
+   - `ENVIRONMENT=production`, `AUTO_CREATE_TABLES=true`
+3. Deploy. Note the URL, e.g. `https://study-notes-api.onrender.com`. Check `/health` returns `{"status":"ok"}`.
+
+**3. Frontend — Vercel**
+1. On [vercel.com](https://vercel.com) → **Add New → Project**, import the repo.
+2. Set **Root Directory** = `frontend` (framework auto-detected as Vite).
+3. Add env var `VITE_API_URL` = `https://study-notes-api.onrender.com/api` (your backend URL + `/api`).
+4. Deploy, then copy the Vercel URL.
+
+**4. Connect them**
+- Put the Vercel URL into the backend's `CORS_ORIGINS` on Render and redeploy.
+- Open the Vercel URL, register, and you're live.
+
+> **Tips:** Render's free service sleeps when idle (first request after takes ~30–60 s).
+> A free pinger (e.g. cron-job.org / UptimeRobot) hitting `/health` every 10 min keeps it warm.
+> Cloudflare Pages or Netlify work in place of Vercel; Koyeb in place of Render.
+
 ## Project layout
 
 ```
