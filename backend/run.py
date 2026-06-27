@@ -8,6 +8,7 @@ the policy here — before uvicorn creates the loop — makes every mode work.
 Use this for native runs:  python run.py
 """
 import asyncio
+import os
 import sys
 
 if sys.platform == "win32":
@@ -21,6 +22,11 @@ if __name__ == "__main__":
     uvicorn.run(
         "app.main:app",
         host="0.0.0.0",
-        port=8000,
+        # Hosts like Render/Koyeb inject the port to bind via $PORT.
+        port=int(os.environ.get("PORT", "8000")),
         reload=settings.ENVIRONMENT == "development",
+        # Behind the platform's proxy: trust X-Forwarded-* so request URLs (and
+        # the absolute file URLs we build) use the public https origin.
+        proxy_headers=True,
+        forwarded_allow_ips="*",
     )
