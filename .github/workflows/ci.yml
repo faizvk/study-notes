@@ -22,11 +22,30 @@ jobs:
       - run: npm run build
 
   backend:
-    name: Backend compile & import
+    name: Backend checks
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: studynotes
+          POSTGRES_PASSWORD: studynotes
+          POSTGRES_DB: studynotes
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U studynotes"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     defaults:
       run:
         working-directory: backend
+    env:
+      DATABASE_URL: postgresql+psycopg://studynotes:studynotes@localhost:5432/studynotes
+      SECRET_KEY: ci-secret
+      ENVIRONMENT: production
+      AUTO_CREATE_TABLES: "true"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -36,7 +55,14 @@ jobs:
       - name: Byte-compile
         run: python -m compileall app run.py
       - name: Import app
-        env:
-          DATABASE_URL: postgresql+psycopg://u:p@localhost:5432/db
-          SECRET_KEY: ci-secret
         run: python -c "import app.main; print('import OK')"
+      - name: Boot and health check
+        run: |
+          python run.py &
+          for i in $(seq 1 30); do
+            if curl -fs http://localhost:8000/health > /dev/null; then
+              echo "backend healthy"; exit 0
+            fi
+            sleep 2
+          done
+          echo "backend did not become healthy"; exit 1
