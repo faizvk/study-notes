@@ -1,5 +1,7 @@
 # 📚 Study Notes
 
+[![CI](https://github.com/faizvk/study-notes/actions/workflows/ci.yml/badge.svg)](https://github.com/faizvk/study-notes/actions/workflows/ci.yml)
+
 A platform for building, organizing, and versioning your study notes as an
 infinitely-nestable tree of topics, with a block-based editor (text, code,
 images, links) that supports paste & image upload.
